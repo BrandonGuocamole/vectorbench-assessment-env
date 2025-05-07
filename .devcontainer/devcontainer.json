@@ -1,0 +1,29 @@
+{
+	"name": "VectorBench Assessment Environment",
+	"image": "mcr.microsoft.com/devcontainers/python:3.11",
+	
+	"features": {
+		"ghcr.io/devcontainers/features/aws-cli:1": {},
+		"ghcr.io/devcontainers/features/git:1": {}
+	},
+	
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"ms-python.vscode-pylance"
+			],
+			"settings": {
+				"python.testing.pytestEnabled": true,
+				"python.testing.unittestEnabled": false,
+				"python.testing.nosetestsEnabled": false,
+				"python.linting.enabled": true
+			},
+			"welcomeMessage": "# VectorBench Coding Assessment\n\nWelcome to your coding assessment! Please read the README.md and CONSENT.md files before starting.\n\nTo run the tests and validate your solution, use the following command:\n```\npytest -q\n```\n\nWhen you're ready to submit, run:\n```\npython submit.py\n```"
+		}
+	},
+	
+	"postCreateCommand": "bash .devcontainer/init.sh",
+	
+	"remoteUser": "vscode"
+} 

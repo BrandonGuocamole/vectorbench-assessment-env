@@ -1,0 +1,48 @@
+name: Codespace Cleanup
+
+on:
+  schedule:
+    # Run every hour
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cleanup old codespaces
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // Get list of codespaces for the repository
+            const codespaces = await github.rest.codespaces.listInRepositoryForAuthenticatedUser({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              per_page: 100
+            });
+            
+            const now = new Date();
+            const fourHoursAgo = new Date(now.getTime() - 4 * 60 * 60 * 1000); // 4 hours in milliseconds
+            
+            console.log(`Found ${codespaces.data.codespaces.length} codespaces`);
+            
+            // Delete codespaces that are older than 4 hours
+            for (const codespace of codespaces.data.codespaces) {
+              const lastUsedAt = new Date(codespace.last_used_at);
+              
+              if (lastUsedAt < fourHoursAgo) {
+                console.log(`Deleting codespace ${codespace.name} last used at ${lastUsedAt.toISOString()}`);
+                
+                try {
+                  await github.rest.codespaces.deleteForAuthenticatedUser({
+                    codespace_name: codespace.name
+                  });
+                  console.log(`Successfully deleted codespace ${codespace.name}`);
+                } catch (error) {
+                  console.error(`Failed to delete codespace ${codespace.name}: ${error.message}`);
+                }
+              } else {
+                console.log(`Keeping codespace ${codespace.name} last used at ${lastUsedAt.toISOString()}`);
+              }
+            } 
